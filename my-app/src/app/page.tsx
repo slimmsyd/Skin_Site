@@ -10,14 +10,15 @@ import Footer from '@/components/Footer';
 
 export default function Home() {
   const [showBookingCalendar, setShowBookingCalendar] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#fdf2f8] via-white to-[#fdf2f8] text-[#2D3142] overflow-hidden">
       {/* Floating Nav */}
-      <nav className="fixed top-0 left-0 right-0 z-50 mx-4 mt-4">
-        <div className="backdrop-blur-xl bg-white/80 rounded-full px-6 py-4 flex justify-between items-center max-w-7xl mx-auto shadow-sm">
+      <nav className="fixed top-0 left-0 right-0 z-50 mx-2 sm:mx-4 mt-2 sm:mt-4">
+        <div className="backdrop-blur-xl bg-white/80 rounded-full px-3 sm:px-6 py-2 sm:py-4 flex justify-between items-center max-w-7xl mx-auto shadow-sm">
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-medium">
+            <h1 className="text-xl sm:text-2xl font-medium">
               <span className="text-[#FF69B4]">SKIN</span>
               <span className="text-[#2D3142]">Regenesis</span>
             </h1>
@@ -28,40 +29,92 @@ export default function Home() {
             <Link href="/contact" className="hover:text-[#FF69B4] transition-colors">Contact</Link>
             <Link 
               href="/book" 
-              className="bg-[#FF69B4] hover:bg-[#FF1493] text-white px-6 py-2 rounded-full transition-all duration-300 shadow-sm"
+              className="bg-[#FF69B4] hover:bg-[#FF1493] text-white px-4 sm:px-6 py-1.5 sm:py-2 rounded-full transition-all duration-300 shadow-sm text-sm"
             >
               Book Now
             </Link>
           </div>
+          {/* Mobile Menu Button */}
+          <button 
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden p-2 text-[#2D3142] hover:text-[#FF69B4] transition-colors"
+          >
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d={isMobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+              />
+            </svg>
+          </button>
         </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="absolute top-full left-0 right-0 mt-2 px-2 md:hidden">
+            <div className="bg-white/95 backdrop-blur-xl rounded-2xl p-4 shadow-lg border border-[#FF69B4]/10">
+              <div className="flex flex-col gap-3">
+                <Link 
+                  href="/services" 
+                  className="px-4 py-2 hover:bg-[#FF69B4]/10 rounded-xl transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Services
+                </Link>
+                <Link 
+                  href="/about" 
+                  className="px-4 py-2 hover:bg-[#FF69B4]/10 rounded-xl transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  About
+                </Link>
+                <Link 
+                  href="/contact" 
+                  className="px-4 py-2 hover:bg-[#FF69B4]/10 rounded-xl transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Contact
+                </Link>
+                <Link 
+                  href="/book"
+                  className="bg-[#FF69B4] text-white px-4 py-2 rounded-xl text-center hover:bg-[#FF1493] transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Book Now
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Hero Section */}
-      <main className="pt-32 px-4">
+      <main className="pt-20 sm:pt-32 px-4">
         <div className="max-w-7xl mx-auto relative">
-          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-r from-[#FF69B4]/10 to-[#FF1493]/5 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute top-0 right-0 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-gradient-to-r from-[#FF69B4]/10 to-[#FF1493]/5 rounded-full blur-3xl animate-pulse" />
           
-          <div className="relative grid md:grid-cols-2 gap-16 items-center">
-            <div className="space-y-8">
-              <div className="inline-block px-4 py-1 rounded-full bg-[#FF69B4]/10 text-[#FF69B4] text-sm mb-4">
+          <div className="relative grid md:grid-cols-2 gap-8 sm:gap-16 items-center">
+            <div className="space-y-4 sm:space-y-8">
+              <div className="inline-block px-3 py-1 rounded-full bg-[#FF69B4]/10 text-[#FF69B4] text-xs sm:text-sm mb-2 sm:mb-4">
                 Premium Waxing Services
               </div>
-              <h2 className="text-6xl font-medium leading-tight">
+              <h2 className="text-4xl sm:text-6xl font-medium leading-tight">
                 Reveal Your
                 <span className="bg-gradient-to-r from-[#FF69B4] to-[#FF1493] text-transparent bg-clip-text"> Natural Beauty</span>
               </h2>
-              <p className="text-[#2D3142]/80 text-xl">
+              <p className="text-[#2D3142]/80 text-lg sm:text-xl">
                 Experience the art of expert waxing in a serene, 
                 professional environment designed for your comfort.
               </p>
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <span 
-                  className="bg-[#FF69B4] text-white px-8 py-3 rounded-full hover:bg-[#FF1493] transition-all duration-300 shadow-sm group"
+                  className="bg-[#FF69B4] text-white px-6 sm:px-8 py-2 sm:py-3 rounded-full hover:bg-[#FF1493] transition-all duration-300 shadow-sm group text-sm sm:text-base text-center"
                 >
                   <span className="group-hover:mr-2 transition-all duration-300">Book Appointment Below</span>
                   <span className="group-hover:opacity-100 opacity-0 transition-all duration-300">→</span>
                 </span>
-                <div className="bg-white/80 backdrop-blur-sm border border-[#FF69B4]/20 px-4 py-3 rounded-full text-sm">
+                <div className="bg-white/80 backdrop-blur-sm border border-[#FF69B4]/20 px-4 py-2 sm:py-3 rounded-full text-xs sm:text-sm text-center">
                   <span className="text-[#FF69B4] font-medium">Open Today:</span> {getCurrentDayHours()}
                 </div>
               </div>
