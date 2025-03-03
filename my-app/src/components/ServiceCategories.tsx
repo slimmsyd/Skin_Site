@@ -404,6 +404,7 @@ export default function ServiceCategories() {
   const [showBookingCalendar, setShowBookingCalendar] = useState(false);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
+  const [currentServicePage, setCurrentServicePage] = useState(0);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
 
@@ -411,22 +412,54 @@ export default function ServiceCategories() {
   const isMobile = width < 768;
   const itemsPerPage = isMobile ? 1 : 3;
 
-  const getPageCount = (serviceCount: number) => Math.ceil(serviceCount / itemsPerPage);
+  // Category Navigation
+  const handleNextCategory = () => {
+    setCurrentPage((prev) => (prev + 1) % serviceCategories.length);
+  };
 
-  const handleNextPage = () => {
+  const handlePrevCategory = () => {
+    setCurrentPage((prev) => (prev - 1 + serviceCategories.length) % serviceCategories.length);
+  };
+
+  // Service Navigation
+  const getServicePageCount = (serviceCount: number) => Math.ceil(serviceCount / itemsPerPage);
+
+  const handleNextService = () => {
     if (currentCategory !== null) {
-      const maxPages = getPageCount(serviceCategories[currentCategory].services.length);
-      setCurrentPage(prev => (prev + 1) % maxPages);
+      const maxPages = getServicePageCount(serviceCategories[currentCategory].services.length);
+      setCurrentServicePage(prev => (prev + 1) % maxPages);
     }
   };
 
-  const handlePrevPage = () => {
+  const handlePrevService = () => {
     if (currentCategory !== null) {
-      const maxPages = getPageCount(serviceCategories[currentCategory].services.length);
-      setCurrentPage(prev => (prev - 1 + maxPages) % maxPages);
+      const maxPages = getServicePageCount(serviceCategories[currentCategory].services.length);
+      setCurrentServicePage(prev => (prev - 1 + maxPages) % maxPages);
     }
   };
 
+  // Touch Handlers for Categories
+  const handleCategoryTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.touches[0].clientX);
+    setTouchEnd(e.touches[0].clientX);
+  };
+
+  const handleCategoryTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.touches[0].clientX);
+  };
+
+  const handleCategoryTouchEnd = () => {
+    const diff = touchStart - touchEnd;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) {
+        handleNextCategory();
+      } else {
+        handlePrevCategory();
+      }
+    }
+  };
+
+  // Touch Handlers for Services
   const handleServiceTouchStart = (e: React.TouchEvent) => {
     setTouchStart(e.touches[0].clientX);
     setTouchEnd(e.touches[0].clientX);
@@ -438,18 +471,18 @@ export default function ServiceCategories() {
 
   const handleServiceTouchEnd = () => {
     const diff = touchStart - touchEnd;
-    if (Math.abs(diff) > 50) { // Reduced threshold for easier swiping
+    if (Math.abs(diff) > 50) {
       if (diff > 0) {
-        handleNextPage();
+        handleNextService();
       } else {
-        handlePrevPage();
+        handlePrevService();
       }
     }
   };
 
   const closeModal = () => {
     setCurrentCategory(null);
-    setCurrentPage(0);
+    setCurrentServicePage(0);
   };
 
   return (
@@ -462,12 +495,11 @@ export default function ServiceCategories() {
 
         {/* Service Categories Carousel */}
         <div className="relative">
-          {/* Categories Container */}
           <div 
             className="overflow-hidden px-2 md:px-8"
-            onTouchStart={handleServiceTouchStart}
-            onTouchMove={handleServiceTouchMove}
-            onTouchEnd={handleServiceTouchEnd}
+            onTouchStart={handleCategoryTouchStart}
+            onTouchMove={handleCategoryTouchMove}
+            onTouchEnd={handleCategoryTouchEnd}
           >
             <motion.div
               animate={{ x: `-${currentPage * 100}%` }}
@@ -514,9 +546,8 @@ export default function ServiceCategories() {
             </motion.div>
           </div>
 
-          {/* Navigation and Progress Bar Container */}
+          {/* Category Navigation */}
           <div className="mt-4 md:mt-8 flex flex-col-reverse md:flex-row justify-between items-center px-2 md:px-8 gap-3">
-            {/* Progress Bar */}
             <div className="flex items-center gap-1.5 md:gap-2 order-2 md:order-1">
               {Array.from({ length: serviceCategories.length }).map((_, i) => (
                 <button
@@ -529,10 +560,9 @@ export default function ServiceCategories() {
               ))}
             </div>
 
-            {/* Navigation Buttons */}
             <div className="flex items-center gap-2 order-1 md:order-2">
               <button
-                onClick={handlePrevPage}
+                onClick={handlePrevCategory}
                 className="bg-[#FF69B4]/10 hover:bg-[#FF69B4]/20 rounded-full p-3 backdrop-blur-sm transition-all"
               >
                 <svg className="w-5 h-5 text-[#FF69B4]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -541,7 +571,7 @@ export default function ServiceCategories() {
               </button>
 
               <button
-                onClick={handleNextPage}
+                onClick={handleNextCategory}
                 className="bg-[#FF69B4]/10 hover:bg-[#FF69B4]/20 rounded-full p-3 backdrop-blur-sm transition-all"
               >
                 <svg className="w-5 h-5 text-[#FF69B4]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -552,7 +582,7 @@ export default function ServiceCategories() {
           </div>
         </div>
 
-        {/* Modal */}
+        {/* Modal with Services */}
         {currentCategory !== null && (
           <div 
             className="fixed inset-0 bg-black/50 flex items-end md:items-center justify-center z-50 px-0 md:px-4"
@@ -594,7 +624,7 @@ export default function ServiceCategories() {
                   onTouchEnd={handleServiceTouchEnd}
                 >
                   <motion.div
-                    animate={{ x: `-${currentPage * 100}%` }}
+                    animate={{ x: `-${currentServicePage * 100}%` }}
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     className="flex gap-3 md:gap-4"
                   >
@@ -641,12 +671,12 @@ export default function ServiceCategories() {
                 {/* Service Navigation Dots */}
                 {isMobile && currentCategory !== null && (
                   <div className="flex justify-center gap-2 mt-6">
-                    {Array.from({ length: getPageCount(serviceCategories[currentCategory].services.length) }).map((_, i) => (
+                    {Array.from({ length: getServicePageCount(serviceCategories[currentCategory].services.length) }).map((_, i) => (
                       <button
                         key={i}
-                        onClick={() => setCurrentPage(i)}
+                        onClick={() => setCurrentServicePage(i)}
                         className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                          i === currentPage ? 'bg-[#FF69B4] w-4' : 'bg-[#FF69B4]/20'
+                          i === currentServicePage ? 'bg-[#FF69B4] w-4' : 'bg-[#FF69B4]/20'
                         }`}
                         aria-label={`Go to page ${i + 1}`}
                       />
@@ -658,7 +688,7 @@ export default function ServiceCategories() {
                 {!isMobile && (
                   <div className="flex justify-between items-center absolute top-1/2 -translate-y-1/2 left-0 right-0">
                     <button
-                      onClick={handlePrevPage}
+                      onClick={handlePrevService}
                       className="bg-white/80 hover:bg-white rounded-full p-2 shadow-lg -ml-3 transition-all"
                     >
                       <svg className="w-5 h-5 text-[#FF69B4]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -666,7 +696,7 @@ export default function ServiceCategories() {
                       </svg>
                     </button>
                     <button
-                      onClick={handleNextPage}
+                      onClick={handleNextService}
                       className="bg-white/80 hover:bg-white rounded-full p-2 shadow-lg -mr-3 transition-all"
                     >
                       <svg className="w-5 h-5 text-[#FF69B4]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
