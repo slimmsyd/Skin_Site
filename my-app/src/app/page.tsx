@@ -6,6 +6,7 @@ import VideoCarousel from '@/components/VideoCarousel';
 import ServiceCategories from '@/components/ServiceCategories';
 import ChatPopup from '@/components/ChatPopup';
 import BookingCalendar from '@/components/BookingCalendar';
+import Footer from '@/components/Footer';
 
 export default function Home() {
   const [showBookingCalendar, setShowBookingCalendar] = useState(false);
@@ -90,7 +91,7 @@ export default function Home() {
                 {/* Video Info */}
                 <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
                   <h3 className="font-medium mb-2 flex items-center gap-2">
-                    @skinregenesis
+                    @niecegabrielle
                     <span className="bg-[#FF69B4] text-white text-xs px-2 py-0.5 rounded-full">Follow</span>
                   </h3>
                   <p className="text-sm text-white/90 mb-4">
@@ -203,6 +204,89 @@ export default function Home() {
         <VideoCarousel />
       </section>
 
+      {/* Booking Process Section */}
+      <section className="py-20 px-4 bg-gradient-to-r from-[#fdf2f8] to-white">
+        <div className="max-w-7xl mx-auto">
+          <h3 className="text-3xl font-medium text-center mb-6">What Happens After Booking</h3>
+          <p className="text-center text-[#2D3142]/60 mb-12 max-w-xl mx-auto">
+            Your seamless journey from booking to appointment
+          </p>
+          
+          <div className="grid md:grid-cols-4 gap-6">
+            {/* Step 1 */}
+            <div className="bg-white rounded-3xl p-8 shadow-sm border border-[#FF69B4]/10 relative">
+              <div className="absolute -top-4 -left-4 h-10 w-10 rounded-full bg-[#FF69B4] flex items-center justify-center text-white font-medium">
+                1
+              </div>
+              <div className="h-14 w-14 rounded-full bg-[#FF69B4]/10 flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-[#FF69B4]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h4 className="font-medium mb-2">Confirmation Email</h4>
+              <p className="text-[#2D3142]/60 text-sm">
+                You'll receive an immediate confirmation email with your appointment details.
+              </p>
+            </div>
+            
+            {/* Step 2 */}
+            <div className="bg-white rounded-3xl p-8 shadow-sm border border-[#FF69B4]/10 relative">
+              <div className="absolute -top-4 -left-4 h-10 w-10 rounded-full bg-[#FF69B4] flex items-center justify-center text-white font-medium">
+                2
+              </div>
+              <div className="h-14 w-14 rounded-full bg-[#FF69B4]/10 flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-[#FF69B4]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <h4 className="font-medium mb-2">Address Details</h4>
+              <p className="text-[#2D3142]/60 text-sm">
+                The salon address will be sent immediately after scheduling your appointment.
+              </p>
+            </div>
+            
+            {/* Step 3 */}
+            <div className="bg-white rounded-3xl p-8 shadow-sm border border-[#FF69B4]/10 relative">
+              <div className="absolute -top-4 -left-4 h-10 w-10 rounded-full bg-[#FF69B4] flex items-center justify-center text-white font-medium">
+                3
+              </div>
+              <div className="h-14 w-14 rounded-full bg-[#FF69B4]/10 flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-[#FF69B4]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <h4 className="font-medium mb-2">Door Access</h4>
+              <p className="text-[#2D3142]/60 text-sm">
+                Your door entry code will be sent on the day of your appointment.
+              </p>
+            </div>
+            
+            {/* Step 4 */}
+            <div className="bg-white rounded-3xl p-8 shadow-sm border border-[#FF69B4]/10 relative">
+              <div className="absolute -top-4 -left-4 h-10 w-10 rounded-full bg-[#FF69B4] flex items-center justify-center text-white font-medium">
+                4
+              </div>
+              <div className="h-14 w-14 rounded-full bg-[#FF69B4]/10 flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-[#FF69B4]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                </svg>
+              </div>
+              <h4 className="font-medium mb-2">Enjoy Your Service</h4>
+              <p className="text-[#2D3142]/60 text-sm">
+                Arrive at your appointment time and enjoy your premium waxing experience.
+              </p>
+            </div>
+          </div>
+          
+          <div className="mt-12 bg-[#FF69B4]/5 rounded-3xl p-8 max-w-3xl mx-auto">
+            <p className="text-center text-[#2D3142]/80">
+              <span className="font-medium text-[#FF69B4]">Important:</span> Please read the booking site thoroughly for all details. Reminder emails will be sent in the days prior to your appointment. Happy booking!
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Add Booking Calendar Section */}
       <section className="py-16 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
@@ -226,6 +310,9 @@ export default function Home() {
 
       {/* Chat Popup instead of fixed CTA */}
       <ChatPopup />
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
