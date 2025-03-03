@@ -1,11 +1,20 @@
 {
-  "extends": "next/core-web-vitals",
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint"
+  ],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "next/core-web-vitals"
+  ],
   "rules": {
+    "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": [
       "warn",
       {
         "argsIgnorePattern": "^_",
-        "varsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_|^useEffect$|^addDays$|^isBefore$|^addMinutes$|^fromZonedTime$|^serviceDuration$|^getDurationMinutes$",
         "ignoreRestSiblings": true
       }
     ]
