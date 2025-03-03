@@ -254,7 +254,7 @@ function getCurrentDayHours() {
   return hours.isClosed ? 'Closed Today' : hours.hours;
 }
 
-// @ts-expect-error Used in future implementation
-const services = [
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _services = [
   // ...
 ];
