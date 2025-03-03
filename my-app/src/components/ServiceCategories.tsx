@@ -411,41 +411,45 @@ export default function ServiceCategories() {
   const isMobile = width < 768;
   const itemsPerPage = isMobile ? 1 : 3;
 
-  const handleNextCategory = () => {
+  const getPageCount = (serviceCount: number) => Math.ceil(serviceCount / itemsPerPage);
+
+  const handleNextPage = () => {
     if (currentCategory !== null) {
-      setCurrentCategory((prev) => (prev !== null ? (prev + 1) % serviceCategories.length : 0));
-      setCurrentPage(0);
+      const maxPages = getPageCount(serviceCategories[currentCategory].services.length);
+      setCurrentPage(prev => (prev + 1) % maxPages);
     }
   };
 
-  const handlePrevCategory = () => {
+  const handlePrevPage = () => {
     if (currentCategory !== null) {
-      setCurrentCategory((prev) => (prev !== null ? (prev - 1 + serviceCategories.length) % serviceCategories.length : 0));
-      setCurrentPage(0);
+      const maxPages = getPageCount(serviceCategories[currentCategory].services.length);
+      setCurrentPage(prev => (prev - 1 + maxPages) % maxPages);
+    }
+  };
+
+  const handleServiceTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.touches[0].clientX);
+    setTouchEnd(e.touches[0].clientX);
+  };
+
+  const handleServiceTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.touches[0].clientX);
+  };
+
+  const handleServiceTouchEnd = () => {
+    const diff = touchStart - touchEnd;
+    if (Math.abs(diff) > 50) { // Reduced threshold for easier swiping
+      if (diff > 0) {
+        handleNextPage();
+      } else {
+        handlePrevPage();
+      }
     }
   };
 
   const closeModal = () => {
     setCurrentCategory(null);
     setCurrentPage(0);
-  };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.touches[0].clientX);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.touches[0].clientX);
-  };
-
-  const handleTouchEnd = () => {
-    if (touchStart - touchEnd > 150) {
-      handleNextCategory();
-    }
-
-    if (touchStart - touchEnd < -150) {
-      handlePrevCategory();
-    }
   };
 
   return (
@@ -461,9 +465,9 @@ export default function ServiceCategories() {
           {/* Categories Container */}
           <div 
             className="overflow-hidden px-2 md:px-8"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
+            onTouchStart={handleServiceTouchStart}
+            onTouchMove={handleServiceTouchMove}
+            onTouchEnd={handleServiceTouchEnd}
           >
             <motion.div
               animate={{ x: `-${currentPage * 100}%` }}
@@ -528,7 +532,7 @@ export default function ServiceCategories() {
             {/* Navigation Buttons */}
             <div className="flex items-center gap-2 order-1 md:order-2">
               <button
-                onClick={handlePrevCategory}
+                onClick={handlePrevPage}
                 className="bg-[#FF69B4]/10 hover:bg-[#FF69B4]/20 rounded-full p-3 backdrop-blur-sm transition-all"
               >
                 <svg className="w-5 h-5 text-[#FF69B4]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -537,7 +541,7 @@ export default function ServiceCategories() {
               </button>
 
               <button
-                onClick={handleNextCategory}
+                onClick={handleNextPage}
                 className="bg-[#FF69B4]/10 hover:bg-[#FF69B4]/20 rounded-full p-3 backdrop-blur-sm transition-all"
               >
                 <svg className="w-5 h-5 text-[#FF69B4]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -583,7 +587,12 @@ export default function ServiceCategories() {
 
               {/* Services List */}
               <div className="relative px-0 md:px-2">
-                <motion.div className="overflow-hidden">
+                <div 
+                  className="overflow-hidden touch-pan-x"
+                  onTouchStart={handleServiceTouchStart}
+                  onTouchMove={handleServiceTouchMove}
+                  onTouchEnd={handleServiceTouchEnd}
+                >
                   <motion.div
                     animate={{ x: `-${currentPage * 100}%` }}
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -627,7 +636,45 @@ export default function ServiceCategories() {
                       </motion.div>
                     ))}
                   </motion.div>
-                </motion.div>
+                </div>
+
+                {/* Service Navigation Dots */}
+                {isMobile && currentCategory !== null && (
+                  <div className="flex justify-center gap-2 mt-6">
+                    {Array.from({ length: getPageCount(serviceCategories[currentCategory].services.length) }).map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setCurrentPage(i)}
+                        className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                          i === currentPage ? 'bg-[#FF69B4] w-4' : 'bg-[#FF69B4]/20'
+                        }`}
+                        aria-label={`Go to page ${i + 1}`}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {/* Service Navigation Arrows */}
+                {!isMobile && (
+                  <div className="flex justify-between items-center absolute top-1/2 -translate-y-1/2 left-0 right-0">
+                    <button
+                      onClick={handlePrevPage}
+                      className="bg-white/80 hover:bg-white rounded-full p-2 shadow-lg -ml-3 transition-all"
+                    >
+                      <svg className="w-5 h-5 text-[#FF69B4]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={handleNextPage}
+                      className="bg-white/80 hover:bg-white rounded-full p-2 shadow-lg -mr-3 transition-all"
+                    >
+                      <svg className="w-5 h-5 text-[#FF69B4]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
               </div>
             </motion.div>
           </div>
