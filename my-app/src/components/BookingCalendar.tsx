@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addDays, parse, isAfter, isBefore, addMinutes } from 'date-fns';
-import { toZonedTime, fromZonedTime } from 'date-fns-tz';
+import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, parse, isAfter } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 
 interface BookingCalendarProps {
   isOpen: boolean;
@@ -12,17 +12,12 @@ interface BookingCalendarProps {
   serviceDuration: string;
 }
 
-export default function BookingCalendar({ isOpen, onClose, serviceName, serviceDuration }: BookingCalendarProps) {
+export default function BookingCalendar({ isOpen, onClose, serviceName }: BookingCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   
-  // Convert duration string to minutes
-  const getDurationMinutes = (duration: string) => {
-    const hours = duration.includes('hour') ? parseInt(duration) * 60 : 0;
-    const minutes = duration.includes('minutes') ? parseInt(duration) : 0;
-    return hours + minutes;
-  };
+
 
   const timeSlots = [
     '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM', '12:00 PM', 

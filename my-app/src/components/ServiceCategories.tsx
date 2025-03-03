@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { motion } from 'framer-motion';
 import BookingCalendar from './BookingCalendar';
 
@@ -400,69 +399,45 @@ function useWindowSize() {
 }
 
 export default function ServiceCategories() {
-  const { isMobile } = useWindowSize();
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentCategory, setCurrentCategory] = useState(0);
+  const [showBookingCalendar, setShowBookingCalendar] = useState(false);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
-  const [modalPage, setModalPage] = useState(0);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
-  const [isBookingOpen, setIsBookingOpen] = useState(false);
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
 
-  // Adjust based on screen size
-  const categoriesPerPage = isMobile ? 1 : 3;
-  const totalPages = Math.ceil(serviceCategories.length / categoriesPerPage);
+  const { width } = useWindowSize();
+  const isMobile = width < 768;
   const itemsPerPage = isMobile ? 1 : 3;
+
   const getPageCount = (serviceCount: number) => Math.ceil(serviceCount / itemsPerPage);
 
   const handleNextCategory = () => {
-    setCurrentPage((prev) => (prev + 1) % totalPages);
+    setCurrentCategory((prev) => (prev + 1) % serviceCategories.length);
+    setCurrentPage(0);
   };
 
   const handlePrevCategory = () => {
-    setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
+    setCurrentCategory((prev) => (prev - 1 + serviceCategories.length) % serviceCategories.length);
+    setCurrentPage(0);
   };
 
-  const handleNext = () => {
-    if (selectedCategory !== null) {
-      const pageCount = getPageCount(serviceCategories[selectedCategory].services.length);
-      setModalPage((prev) => (prev + 1) % pageCount);
-    }
-  };
-
-  const handlePrev = () => {
-    if (selectedCategory !== null) {
-      const pageCount = getPageCount(serviceCategories[selectedCategory].services.length);
-      setModalPage((prev) => (prev - 1 + pageCount) % pageCount);
-    }
-  };
-
-  // Add touch handlers
   const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX);
+    setTouchStart(e.touches[0].clientX);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
+    setTouchEnd(e.touches[0].clientX);
   };
 
   const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > 50;
-    const isRightSwipe = distance < -50;
-
-    if (isLeftSwipe) {
+    if (touchStart - touchEnd > 150) {
       handleNextCategory();
     }
-    if (isRightSwipe) {
+
+    if (touchStart - touchEnd < -150) {
       handlePrevCategory();
     }
-
-    setTouchStart(0);
-    setTouchEnd(0);
   };
 
   return (
@@ -497,9 +472,8 @@ export default function ServiceCategories() {
                 >
                   <div
                     onClick={() => {
-                      setSelectedCategory(index);
-                      setIsModalOpen(true);
-                      setModalPage(0); // Reset modal page when opening
+                      setCurrentCategory(index);
+                      setCurrentPage(0);
                     }}
                     className="group relative bg-white rounded-xl md:rounded-3xl p-4 md:p-8 shadow-sm border border-[#FF69B4]/10 
                              hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden h-full"
@@ -535,7 +509,7 @@ export default function ServiceCategories() {
           <div className="mt-4 md:mt-8 flex flex-col-reverse md:flex-row justify-between items-center px-2 md:px-8 gap-3">
             {/* Progress Bar */}
             <div className="flex items-center gap-1.5 md:gap-2 order-2 md:order-1">
-              {Array.from({ length: totalPages }).map((_, i) => (
+              {Array.from({ length: serviceCategories.length }).map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setCurrentPage(i)}
@@ -570,7 +544,7 @@ export default function ServiceCategories() {
         </div>
 
         {/* Modal */}
-        {isModalOpen && selectedCategory !== null && (
+        {currentCategory !== null && (
           <div 
             className="fixed inset-0 bg-black/50 flex items-end md:items-center justify-center z-50 px-0 md:px-4"
             onTouchStart={handleTouchStart}
@@ -587,14 +561,14 @@ export default function ServiceCategories() {
               <div className="flex justify-between items-start mb-4 md:mb-6 sticky top-0 bg-white pt-2 pb-3 border-b border-[#FF69B4]/10">
                 <div>
                   <h3 className="text-lg md:text-2xl font-medium mb-1 md:mb-2">
-                    {serviceCategories[selectedCategory].title}
+                    {serviceCategories[currentCategory].title}
                   </h3>
                   <p className="text-[#2D3142]/60 text-xs md:text-sm">
-                    {serviceCategories[selectedCategory].description}
+                    {serviceCategories[currentCategory].description}
                   </p>
                 </div>
                 <button 
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={() => setCurrentPage(0)}
                   className="text-[#2D3142]/60 hover:text-[#FF69B4] transition-colors p-2 -mr-2"
                 >
                   <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -607,11 +581,11 @@ export default function ServiceCategories() {
               <div className="relative px-0 md:px-2">
                 <motion.div className="overflow-hidden">
                   <motion.div
-                    animate={{ x: `-${modalPage * 100}%` }}
+                    animate={{ x: `-${currentPage * 100}%` }}
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     className="flex gap-3 md:gap-4"
                   >
-                    {serviceCategories[selectedCategory].services.map((service, index) => (
+                    {serviceCategories[currentCategory].services.map((service, index) => (
                       <motion.div
                         key={index}
                         className="flex-none w-full md:w-[calc(33.333%-1rem)] bg-white rounded-xl p-5 md:p-6 border border-[#FF69B4]/10 hover:border-[#FF69B4]/30 transition-all duration-300"
@@ -638,11 +612,11 @@ export default function ServiceCategories() {
                             <button 
                               onClick={() => {
                                 setSelectedService(service);
-                                setIsBookingOpen(true);
+                                setShowBookingCalendar(true);
                               }}
                               className="block w-full text-center text-sm text-white bg-[#FF69B4] py-2.5 rounded-full hover:bg-[#FF1493] transition-colors active:scale-95 transform"
                             >
-                              {selectedCategory === serviceCategories.length - 1 ? 'Add to Cart' : 'Book Now'}
+                              Book Now
                             </button>
                           </div>
                         </div>
@@ -650,19 +624,6 @@ export default function ServiceCategories() {
                     ))}
                   </motion.div>
                 </motion.div>
-
-                {/* Progress Bar */}
-                <div className="mt-4 md:mt-8 flex justify-center items-center gap-1.5 md:gap-2 pb-safe">
-                  {Array.from({ length: getPageCount(serviceCategories[selectedCategory].services.length) }).map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setModalPage(i)}
-                      className={`h-1 rounded-full transition-all duration-300 ${
-                        i === modalPage ? 'w-5 md:w-8 bg-[#FF69B4]' : 'w-2.5 md:w-4 bg-[#FF69B4]/20'
-                      }`}
-                    />
-                  ))}
-                </div>
               </div>
             </motion.div>
           </div>
@@ -671,9 +632,9 @@ export default function ServiceCategories() {
 
       {selectedService && (
         <BookingCalendar
-          isOpen={isBookingOpen}
+          isOpen={showBookingCalendar}
           onClose={() => {
-            setIsBookingOpen(false);
+            setShowBookingCalendar(false);
             setSelectedService(null);
           }}
           serviceName={selectedService.name}
