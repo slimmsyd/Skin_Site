@@ -1,7 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
 
 interface Message {
   type: "user" | "assistant";
@@ -50,7 +49,6 @@ export default function ChatPopup() {
   const handleSendMessage = async () => {
     if (!message.trim() || isLoading) return;
 
-    // Add user message
     const userMessage = {
       type: "user" as const,
       content: message,
@@ -60,15 +58,13 @@ export default function ChatPopup() {
     setMessage("");
     setIsLoading(true);
 
-    // Simulate response delay
-    setTimeout(() => {
-      let responseMessage = {
-        type: "assistant" as const,
-        content: "I'd be happy to help you book an appointment! You can visit our booking page or call us at (555) 123-4567.",
-        timestamp: new Date(),
-      };
+    const responseMessage = {
+      type: "assistant" as const,
+      content: "I'd be happy to help you book an appointment! You can visit our booking page or call us at (555) 123-4567.",
+      timestamp: new Date(),
+    };
 
-      // Simple keyword matching for demo purposes
+    setTimeout(() => {
       if (message.toLowerCase().includes("brazilian")) {
         responseMessage.content = "Our Brazilian Wax service is $60 for a 30-minute session. Would you like to book this service?";
       } else if (message.toLowerCase().includes("price") || message.toLowerCase().includes("cost")) {
