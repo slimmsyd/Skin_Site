@@ -1,5 +1,6 @@
 'use client';
-
+/* eslint-disable react/no-unescaped-entities */ 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import BookingCalendar from './BookingCalendar';
@@ -399,7 +400,7 @@ function useWindowSize() {
 }
 
 export default function ServiceCategories() {
-  const [currentCategory, setCurrentCategory] = useState(0);
+  const [currentCategory, setCurrentCategory] = useState<number | null>(null);
   const [showBookingCalendar, setShowBookingCalendar] = useState(false);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
@@ -410,14 +411,22 @@ export default function ServiceCategories() {
   const isMobile = width < 768;
   const itemsPerPage = isMobile ? 1 : 3;
 
-
   const handleNextCategory = () => {
-    setCurrentCategory((prev) => (prev + 1) % serviceCategories.length);
-    setCurrentPage(0);
+    if (currentCategory !== null) {
+      setCurrentCategory((prev) => (prev !== null ? (prev + 1) % serviceCategories.length : 0));
+      setCurrentPage(0);
+    }
   };
 
   const handlePrevCategory = () => {
-    setCurrentCategory((prev) => (prev - 1 + serviceCategories.length) % serviceCategories.length);
+    if (currentCategory !== null) {
+      setCurrentCategory((prev) => (prev !== null ? (prev - 1 + serviceCategories.length) % serviceCategories.length : 0));
+      setCurrentPage(0);
+    }
+  };
+
+  const closeModal = () => {
+    setCurrentCategory(null);
     setCurrentPage(0);
   };
 
@@ -470,10 +479,7 @@ export default function ServiceCategories() {
                   transition={{ delay: index * 0.1 }}
                 >
                   <div
-                    onClick={() => {
-                      setCurrentCategory(index);
-                      setCurrentPage(0);
-                    }}
+                    onClick={() => setCurrentCategory(index)}
                     className="group relative bg-white rounded-xl md:rounded-3xl p-4 md:p-8 shadow-sm border border-[#FF69B4]/10 
                              hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden h-full"
                   >
@@ -546,15 +552,14 @@ export default function ServiceCategories() {
         {currentCategory !== null && (
           <div 
             className="fixed inset-0 bg-black/50 flex items-end md:items-center justify-center z-50 px-0 md:px-4"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
+            onClick={closeModal}
           >
             <motion.div 
               initial={{ opacity: 0, y: 100 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 100 }}
               className="bg-white rounded-t-[2rem] md:rounded-3xl p-5 md:p-8 w-full md:max-w-4xl md:w-full max-h-[85vh] md:max-h-[90vh] overflow-auto"
+              onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
               <div className="flex justify-between items-start mb-4 md:mb-6 sticky top-0 bg-white pt-2 pb-3 border-b border-[#FF69B4]/10">
@@ -567,7 +572,7 @@ export default function ServiceCategories() {
                   </p>
                 </div>
                 <button 
-                  onClick={() => setCurrentPage(0)}
+                  onClick={closeModal}
                   className="text-[#2D3142]/60 hover:text-[#FF69B4] transition-colors p-2 -mr-2"
                 >
                   <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
