@@ -351,16 +351,16 @@ export default function Home() {
           >
             Open Booking Calendar
           </button>
-          {showBookingCalendar && (
-            <BookingCalendar 
-              isOpen={showBookingCalendar} 
-              onClose={() => setShowBookingCalendar(false)}
-              serviceName="Waxing"
-              serviceDuration="1 hour"
-            />
-          )}
         </div>
       </section>
+
+      {/* Booking Calendar Modal - rendered separately at the end of the component */}
+      <BookingCalendar 
+        isOpen={showBookingCalendar} 
+        onClose={() => setShowBookingCalendar(false)}
+        serviceName="Waxing"
+        serviceDuration="1 hour"
+      />
 
       {/* Chat Popup instead of fixed CTA */}
       <ChatPopup />

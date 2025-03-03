@@ -242,7 +242,7 @@ Would you like to book an appointment now?`,
             }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-28 right-8 w-[400px] sm:w-[400px] w-[95%] mx-auto sm:mx-0 sm:right-8 bg-black/10 backdrop-blur-3xl rounded-3xl shadow-2xl z-50 overflow-hidden border border-white/20"
+            className="fixed bottom-28 right-8 w-[400px] bg-black/10 backdrop-blur-3xl rounded-3xl shadow-2xl z-50 overflow-hidden border border-white/20 "
             style={{ maxHeight: "75vh" }}
           >
             {/* Header */}
@@ -394,14 +394,13 @@ Would you like to book an appointment now?`,
 
       {/* Service Selection Modal */}
       {showServiceSelection && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl max-h-[90vh] overflow-auto">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] flex items-center justify-center">
+          <div className="bg-white rounded-3xl p-6 max-w-4xl w-full max-h-[90vh] overflow-auto">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl sm:text-2xl font-medium">Select a Service</h2>
+              <h2 className="text-2xl font-medium">Select a Service</h2>
               <button 
                 onClick={() => setShowServiceSelection(false)}
                 className="p-2 hover:bg-gray-100 rounded-full"
-                aria-label="Close service selection"
               >
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -435,14 +434,12 @@ Would you like to book an appointment now?`,
       )}
 
       {/* Booking Calendar Modal */}
-      {showBookingCalendar && selectedService && (
-        <BookingCalendar 
-          isOpen={showBookingCalendar} 
-          onClose={() => setShowBookingCalendar(false)}
-          serviceName={selectedService.name}
-          serviceDuration={selectedService.duration}
-        />
-      )}
+      <BookingCalendar 
+        isOpen={showBookingCalendar && selectedService !== null} 
+        onClose={() => setShowBookingCalendar(false)}
+        serviceName={selectedService?.name || ''}
+        serviceDuration={selectedService?.duration || ''}
+      />
     </>
   );
 } 

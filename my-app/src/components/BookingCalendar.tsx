@@ -1,7 +1,7 @@
 'use client';
 /* eslint-disable react/no-unescaped-entities */ 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, parse, isAfter } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
@@ -18,7 +18,14 @@ export default function BookingCalendar({ isOpen, onClose, serviceName }: Bookin
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   
-
+  // Reset state when modal opens/closes
+  useEffect(() => {
+    if (!isOpen) {
+      // Reset state when modal closes
+      setSelectedDate(null);
+      setSelectedTime(null);
+    }
+  }, [isOpen]);
 
   const timeSlots = [
     '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM', '12:00 PM', 
@@ -77,13 +84,15 @@ export default function BookingCalendar({ isOpen, onClose, serviceName }: Bookin
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] px-4"
         >
+          <div className="fixed inset-0" onClick={onClose}></div>
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="bg-white rounded-3xl p-4 sm:p-6 md:p-8 w-full max-w-2xl overflow-auto max-h-[90vh] mx-4"
+            className="bg-white rounded-3xl p-4 sm:p-6 md:p-8 w-full max-w-2xl overflow-auto max-h-[90vh] relative"
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Header with more prominent close button */}
             <div className="flex justify-between items-start mb-6 sticky top-0 bg-white z-10 pb-4 border-b border-gray-100">

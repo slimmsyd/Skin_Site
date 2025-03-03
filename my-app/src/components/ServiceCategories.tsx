@@ -410,7 +410,6 @@ export default function ServiceCategories() {
   const isMobile = width < 768;
   const itemsPerPage = isMobile ? 1 : 3;
 
-  const getPageCount = (serviceCount: number) => Math.ceil(serviceCount / itemsPerPage);
 
   const handleNextCategory = () => {
     setCurrentCategory((prev) => (prev + 1) % serviceCategories.length);
@@ -630,17 +629,15 @@ export default function ServiceCategories() {
         )}
       </div>
 
-      {selectedService && (
-        <BookingCalendar
-          isOpen={showBookingCalendar}
-          onClose={() => {
-            setShowBookingCalendar(false);
-            setSelectedService(null);
-          }}
-          serviceName={selectedService.name}
-          serviceDuration={selectedService.duration}
-        />
-      )}
+      <BookingCalendar
+        isOpen={showBookingCalendar && selectedService !== null}
+        onClose={() => {
+          setShowBookingCalendar(false);
+          setSelectedService(null);
+        }}
+        serviceName={selectedService?.name || ''}
+        serviceDuration={selectedService?.duration || ''}
+      />
     </section>
   );
 } 
