@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import BookingCalendar from './BookingCalendar';
 
 interface Service {
   name: string;
@@ -406,6 +407,8 @@ export default function ServiceCategories() {
   const [modalPage, setModalPage] = useState(0);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
 
   // Adjust based on screen size
   const categoriesPerPage = isMobile ? 1 : 3;
@@ -632,12 +635,15 @@ export default function ServiceCategories() {
                           )}
                           
                           <div className="mt-auto">
-                            <Link 
-                              href={`/book?service=${encodeURIComponent(service.name)}`}
+                            <button 
+                              onClick={() => {
+                                setSelectedService(service);
+                                setIsBookingOpen(true);
+                              }}
                               className="block w-full text-center text-sm text-white bg-[#FF69B4] py-2.5 rounded-full hover:bg-[#FF1493] transition-colors active:scale-95 transform"
                             >
                               {selectedCategory === serviceCategories.length - 1 ? 'Add to Cart' : 'Book Now'}
-                            </Link>
+                            </button>
                           </div>
                         </div>
                       </motion.div>
@@ -662,6 +668,18 @@ export default function ServiceCategories() {
           </div>
         )}
       </div>
+
+      {selectedService && (
+        <BookingCalendar
+          isOpen={isBookingOpen}
+          onClose={() => {
+            setIsBookingOpen(false);
+            setSelectedService(null);
+          }}
+          serviceName={selectedService.name}
+          serviceDuration={selectedService.duration}
+        />
+      )}
     </section>
   );
 } 

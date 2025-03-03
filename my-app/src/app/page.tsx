@@ -1,9 +1,15 @@
+'use client';
+
+import { useState } from 'react';
 import Link from "next/link";
 import VideoCarousel from '@/components/VideoCarousel';
 import ServiceCategories from '@/components/ServiceCategories';
 import ChatPopup from '@/components/ChatPopup';
+import BookingCalendar from '@/components/BookingCalendar';
 
 export default function Home() {
+  const [showBookingCalendar, setShowBookingCalendar] = useState(false);
+  
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#fdf2f8] via-white to-[#fdf2f8] text-[#2D3142] overflow-hidden">
       {/* Floating Nav */}
@@ -48,13 +54,12 @@ export default function Home() {
                 professional environment designed for your comfort.
               </p>
               <div className="flex gap-4">
-                <Link 
-                  href="/book" 
+                <span 
                   className="bg-[#FF69B4] text-white px-8 py-3 rounded-full hover:bg-[#FF1493] transition-all duration-300 shadow-sm group"
                 >
-                  <span className="group-hover:mr-2 transition-all duration-300">Book Appointment</span>
+                  <span className="group-hover:mr-2 transition-all duration-300">Book Appointment Below</span>
                   <span className="group-hover:opacity-100 opacity-0 transition-all duration-300">→</span>
-                </Link>
+                </span>
                 <div className="bg-white/80 backdrop-blur-sm border border-[#FF69B4]/20 px-4 py-3 rounded-full text-sm">
                   <span className="text-[#FF69B4] font-medium">Open Today:</span> {getCurrentDayHours()}
                 </div>
@@ -196,6 +201,27 @@ export default function Home() {
       {/* Video Carousel Section */}
       <section className="py-16 bg-white">
         <VideoCarousel />
+      </section>
+
+      {/* Add Booking Calendar Section */}
+      <section className="py-16 px-4 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <h3 className="text-3xl font-medium text-center mb-8">Book Your Appointment</h3>
+          <button 
+            onClick={() => setShowBookingCalendar(true)}
+            className="mx-auto block bg-[#FF69B4] text-white px-8 py-3 rounded-full hover:bg-[#FF1493] transition-all duration-300 shadow-sm"
+          >
+            Open Booking Calendar
+          </button>
+          {showBookingCalendar && (
+            <BookingCalendar 
+              isOpen={showBookingCalendar} 
+              onClose={() => setShowBookingCalendar(false)}
+              serviceName="Waxing"
+              serviceDuration="1 hour"
+            />
+          )}
+        </div>
       </section>
 
       {/* Chat Popup instead of fixed CTA */}
