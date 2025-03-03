@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 
@@ -374,18 +374,43 @@ const serviceCategories: ServiceCategory[] = [
   // Add other categories...
 ];
 
+function useWindowSize() {
+  const [windowSize, setWindowSize] = useState({
+    width: typeof window !== 'undefined' ? window.innerWidth : 1024,
+    isMobile: false,
+  });
+
+  useEffect(() => {
+    function handleResize() {
+      setWindowSize({
+        width: window.innerWidth,
+        isMobile: window.innerWidth < 768,
+      });
+    }
+    
+    if (typeof window !== 'undefined') {
+      handleResize(); // Initial check
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, []);
+
+  return windowSize;
+}
+
 export default function ServiceCategories() {
+  const { isMobile } = useWindowSize();
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [modalPage, setModalPage] = useState(0);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
 
-  // Calculate how many categories to show at once (3)
-  const categoriesPerPage = 3;
+  // Adjust based on screen size
+  const categoriesPerPage = isMobile ? 1 : 3;
   const totalPages = Math.ceil(serviceCategories.length / categoriesPerPage);
-
-  // For modal carousel
-  const itemsPerPage = 3;
+  const itemsPerPage = isMobile ? 1 : 3;
   const getPageCount = (serviceCount: number) => Math.ceil(serviceCount / itemsPerPage);
 
   const handleNextCategory = () => {
@@ -410,27 +435,59 @@ export default function ServiceCategories() {
     }
   };
 
+  // Add touch handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe) {
+      handleNextCategory();
+    }
+    if (isRightSwipe) {
+      handlePrevCategory();
+    }
+
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
+
   return (
-    <section className="py-24 px-4 bg-white">
+    <section className="py-8 md:py-24 px-4 bg-white">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-4xl font-medium text-center mb-4">Our Services</h2>
-        <p className="text-center text-[#2D3142]/60 mb-16 max-w-xl mx-auto">
+        <h2 className="text-2xl md:text-4xl font-medium text-center mb-3 md:mb-4">Our Services</h2>
+        <p className="text-center text-[#2D3142]/60 mb-6 md:mb-16 max-w-xl mx-auto text-sm md:text-base px-2 md:px-4">
           Discover our range of professional waxing services tailored to your needs
         </p>
 
         {/* Service Categories Carousel */}
         <div className="relative">
           {/* Categories Container */}
-          <div className="overflow-hidden px-8">
+          <div 
+            className="overflow-hidden px-2 md:px-8"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
             <motion.div
               animate={{ x: `-${currentPage * 100}%` }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="flex gap-6"
+              className="flex gap-3 md:gap-6"
             >
               {serviceCategories.map((category, index) => (
                 <motion.div
                   key={index}
-                  className="flex-none w-[calc(33.333%-1rem)]"
+                  className="flex-none w-full md:w-[calc(33.333%-1rem)]"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
@@ -439,8 +496,9 @@ export default function ServiceCategories() {
                     onClick={() => {
                       setSelectedCategory(index);
                       setIsModalOpen(true);
+                      setModalPage(0); // Reset modal page when opening
                     }}
-                    className="group relative bg-white rounded-3xl p-8 shadow-sm border border-[#FF69B4]/10 
+                    className="group relative bg-white rounded-xl md:rounded-3xl p-4 md:p-8 shadow-sm border border-[#FF69B4]/10 
                              hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden h-full"
                   >
                     {/* Hover Effect Background */}
@@ -449,11 +507,11 @@ export default function ServiceCategories() {
                     
                     {/* Content */}
                     <div className="relative z-10">
-                      <span className="text-4xl mb-6 block">{category.icon}</span>
-                      <h3 className="text-xl font-medium mb-3 text-[#2D3142]">
+                      <span className="text-3xl md:text-4xl mb-4 md:mb-6 block">{category.icon}</span>
+                      <h3 className="text-lg md:text-xl font-medium mb-2 md:mb-3 text-[#2D3142]">
                         {category.title}
                       </h3>
-                      <p className="text-[#2D3142]/60 text-sm mb-6">
+                      <p className="text-[#2D3142]/60 text-sm mb-4 md:mb-6">
                         {category.description}
                       </p>
                       <span className="text-[#FF69B4] text-sm font-medium flex items-center gap-2">
@@ -471,22 +529,22 @@ export default function ServiceCategories() {
           </div>
 
           {/* Navigation and Progress Bar Container */}
-          <div className="mt-8 flex justify-between items-center px-8">
+          <div className="mt-4 md:mt-8 flex flex-col-reverse md:flex-row justify-between items-center px-2 md:px-8 gap-3">
             {/* Progress Bar */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 md:gap-2 order-2 md:order-1">
               {Array.from({ length: totalPages }).map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setCurrentPage(i)}
                   className={`h-1 rounded-full transition-all duration-300 ${
-                    i === currentPage ? 'w-8 bg-[#FF69B4]' : 'w-4 bg-[#FF69B4]/20'
+                    i === currentPage ? 'w-5 md:w-8 bg-[#FF69B4]' : 'w-2.5 md:w-4 bg-[#FF69B4]/20'
                   }`}
                 />
               ))}
             </div>
 
             {/* Navigation Buttons */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 order-1 md:order-2">
               <button
                 onClick={handlePrevCategory}
                 className="bg-[#FF69B4]/10 hover:bg-[#FF69B4]/20 rounded-full p-3 backdrop-blur-sm transition-all"
@@ -510,82 +568,65 @@ export default function ServiceCategories() {
 
         {/* Modal */}
         {isModalOpen && selectedCategory !== null && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+          <div 
+            className="fixed inset-0 bg-black/50 flex items-end md:items-center justify-center z-50 px-0 md:px-4"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-3xl p-8 max-w-4xl w-full max-h-[80vh] overflow-hidden"
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 100 }}
+              className="bg-white rounded-t-[2rem] md:rounded-3xl p-5 md:p-8 w-full md:max-w-4xl md:w-full max-h-[85vh] md:max-h-[90vh] overflow-auto"
             >
               {/* Header */}
-              <div className="flex justify-between items-start mb-6">
+              <div className="flex justify-between items-start mb-4 md:mb-6 sticky top-0 bg-white pt-2 pb-3 border-b border-[#FF69B4]/10">
                 <div>
-                  <h3 className="text-2xl font-medium mb-2">
+                  <h3 className="text-lg md:text-2xl font-medium mb-1 md:mb-2">
                     {serviceCategories[selectedCategory].title}
                   </h3>
-                  <p className="text-[#2D3142]/60">
+                  <p className="text-[#2D3142]/60 text-xs md:text-sm">
                     {serviceCategories[selectedCategory].description}
                   </p>
                 </div>
                 <button 
                   onClick={() => setIsModalOpen(false)}
-                  className="text-[#2D3142]/60 hover:text-[#FF69B4] transition-colors"
+                  className="text-[#2D3142]/60 hover:text-[#FF69B4] transition-colors p-2 -mr-2"
                 >
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
 
-              {/* Services Carousel */}
-              <div className="relative">
-                {/* Navigation Buttons */}
-                <button
-                  onClick={handlePrev}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 bg-[#FF69B4]/10 hover:bg-[#FF69B4]/20 rounded-full p-3 backdrop-blur-sm transition-all"
-                >
-                  <svg className="w-6 h-6 text-[#FF69B4]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-
-                <button
-                  onClick={handleNext}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 bg-[#FF69B4]/10 hover:bg-[#FF69B4]/20 rounded-full p-3 backdrop-blur-sm transition-all"
-                >
-                  <svg className="w-6 h-6 text-[#FF69B4]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-
-                {/* Services List */}
-                <motion.div 
-                  className="overflow-hidden px-8"
-                >
+              {/* Services List */}
+              <div className="relative px-0 md:px-2">
+                <motion.div className="overflow-hidden">
                   <motion.div
                     animate={{ x: `-${modalPage * 100}%` }}
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                    className="flex gap-4"
+                    className="flex gap-3 md:gap-4"
                   >
                     {serviceCategories[selectedCategory].services.map((service, index) => (
                       <motion.div
                         key={index}
-                        className="flex-none w-[calc(33.333%-1rem)] bg-white rounded-xl p-6 border border-[#FF69B4]/10 hover:border-[#FF69B4]/30 transition-all duration-300"
+                        className="flex-none w-full md:w-[calc(33.333%-1rem)] bg-white rounded-xl p-5 md:p-6 border border-[#FF69B4]/10 hover:border-[#FF69B4]/30 transition-all duration-300"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
                       >
                         <div className="flex flex-col h-full">
                           <div className="mb-3">
-                            <h4 className="font-medium text-lg mb-1">{service.name}</h4>
+                            <h4 className="font-medium text-base md:text-lg mb-1">{service.name}</h4>
                             <div className="flex justify-between items-center">
-                              <p className="text-sm text-[#2D3142]/60">{service.duration}</p>
-                              <p className="font-medium text-[#FF69B4] text-lg">{service.price}</p>
+                              <p className="text-xs md:text-sm text-[#2D3142]/60">{service.duration}</p>
+                              <p className="font-medium text-[#FF69B4] text-base md:text-lg">{service.price}</p>
                             </div>
                           </div>
                           
                           {service.description && (
-                            <p className="text-sm text-[#2D3142]/70 mt-2 mb-4 border-t border-[#FF69B4]/10 pt-3 flex-grow">
+                            <p className="text-xs md:text-sm text-[#2D3142]/70 mt-2 mb-4 border-t border-[#FF69B4]/10 pt-3 flex-grow">
                               {service.description}
                             </p>
                           )}
@@ -593,9 +634,7 @@ export default function ServiceCategories() {
                           <div className="mt-auto">
                             <Link 
                               href={`/book?service=${encodeURIComponent(service.name)}`}
-                              className={`block w-full text-center text-sm text-white bg-[#FF69B4] py-2 rounded-full hover:bg-[#FF1493] transition-colors ${
-                                selectedCategory === serviceCategories.length - 1 ? 'bg-[#FF69B4]/90' : ''
-                              }`}
+                              className="block w-full text-center text-sm text-white bg-[#FF69B4] py-2.5 rounded-full hover:bg-[#FF1493] transition-colors active:scale-95 transform"
                             >
                               {selectedCategory === serviceCategories.length - 1 ? 'Add to Cart' : 'Book Now'}
                             </Link>
@@ -607,13 +646,13 @@ export default function ServiceCategories() {
                 </motion.div>
 
                 {/* Progress Bar */}
-                <div className="mt-8 flex justify-center items-center gap-2">
+                <div className="mt-4 md:mt-8 flex justify-center items-center gap-1.5 md:gap-2 pb-safe">
                   {Array.from({ length: getPageCount(serviceCategories[selectedCategory].services.length) }).map((_, i) => (
                     <button
                       key={i}
                       onClick={() => setModalPage(i)}
                       className={`h-1 rounded-full transition-all duration-300 ${
-                        i === modalPage ? 'w-8 bg-[#FF69B4]' : 'w-4 bg-[#FF69B4]/20'
+                        i === modalPage ? 'w-5 md:w-8 bg-[#FF69B4]' : 'w-2.5 md:w-4 bg-[#FF69B4]/20'
                       }`}
                     />
                   ))}
