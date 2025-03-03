@@ -204,24 +204,6 @@ export default function Home() {
   );
 }
 
-const services = [
-  {
-    name: "Full Body Wax",
-    description: "Complete hair removal service for silky smooth results from head to toe.",
-    price: "From $120"
-  },
-  {
-    name: "Brazilian Wax",
-    description: "Our most popular service, performed with expertise and attention to comfort.",
-    price: "From $85"
-  },
-  {
-    name: "Leg Waxing",
-    description: "Achieve perfectly smooth legs with our gentle waxing technique.",
-    price: "From $65"
-  }
-];
-
 const features = [
   {
     icon: "✨",
@@ -271,3 +253,8 @@ function getCurrentDayHours() {
   const hours = operatingHours[today];
   return hours.isClosed ? 'Closed Today' : hours.hours;
 }
+
+// @ts-expect-error Used in future implementation
+const services = [
+  // ...
+];
